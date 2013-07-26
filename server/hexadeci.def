@@ -1,0 +1,48 @@
+DEFINITION MODULE Hexadecimal;
+
+        (********************************************************)
+        (*                                                      *)
+        (*          Binary/Hexadecimal conversions              *)
+        (*                                                      *)
+        (*  Programmer:         P. Moylan                       *)
+        (*  Started:            11 June 1998                    *)
+        (*  Last edited:        23 March 1998                   *)
+        (*  Status:             OK                              *)
+        (*                                                      *)
+        (********************************************************)
+
+
+FROM SYSTEM IMPORT (*type*) CARD8;
+
+
+PROCEDURE HexCode (val: CARD8): CHAR;
+
+    (* Returns a hexadecimal code for a one-digit number. *)
+
+PROCEDURE PutHex (val: CARDINAL;  VAR (*INOUT*) buffer: ARRAY OF CHAR;
+                                  VAR (*INOUT*) pos: CARDINAL);
+
+    (* Stores a hexadecimal number at buffer[pos], and updates pos.     *)
+
+PROCEDURE PutHex2 (val: CARD8;  VAR (*INOUT*) buffer: ARRAY OF CHAR;
+                               VAR (*INOUT*) pos: CARDINAL);
+
+    (* Stores a two-digit hexadecimal number at buffer[pos],    *)
+    (* and updates pos.                                         *)
+
+PROCEDURE GetHex (VAR (*INOUT*) buffer: ARRAY OF CHAR;
+                  VAR (*INOUT*) pos: CARDINAL;
+                  VAR (*OUT*) val: CARDINAL): BOOLEAN;
+
+    (* Reads a hexadecimal number at buffer[pos], possibly preceded by  *)
+    (* space characters, and updates pos.  Returns FALSE if no          *)
+    (* hexadecimal character was found.                                 *)
+
+PROCEDURE GetHex2 (VAR (*INOUT*) buffer: ARRAY OF CHAR;
+                  VAR (*INOUT*) pos: CARDINAL;
+                  VAR (*OUT*) val: CARD8): BOOLEAN;
+
+    (* Like GetHex, but reads at most two digits.  *)
+
+END Hexadecimal.
+

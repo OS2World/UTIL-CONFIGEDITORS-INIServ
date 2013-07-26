@@ -1,0 +1,39 @@
+DEFINITION MODULE INICommands;
+
+        (********************************************************)
+        (*                                                      *)
+        (*       Command interpreter for INIServe               *)
+        (*                                                      *)
+        (*  Programmer:         P. Moylan                       *)
+        (*  Started:            24 May 1998                     *)
+        (*  Last edited:        14 May 1999                     *)
+        (*  Status:             OK                              *)
+        (*                                                      *)
+        (********************************************************)
+
+
+FROM Sockets IMPORT
+    (* type *)  Socket;
+
+(********************************************************************************)
+
+TYPE Session;            (* is private *)
+
+(********************************************************************************)
+
+PROCEDURE OpenSession (CommandSocket: Socket): Session;
+
+    (* Creates a new session state record.  *)
+
+PROCEDURE CloseSession (S: Session);
+
+    (* Destroys the session state record. *)
+
+PROCEDURE HandleCommand (S: Session;  Command: ARRAY OF CHAR;
+                                                      VAR (*OUT*) Quit: BOOLEAN);
+
+    (* Executes one user command.  Returns with Quit=TRUE if the command is one *)
+    (* that closes the session, or if the connection is lost.                   *)
+
+END INICommands.
+
