@@ -1,0 +1,23 @@
+LIST OF CHANGES
+
+Version 2.3
+   Rebuild to fix a semaphore leak.
+   Added bldlevel information to the executables.
+   Added exceptq support.
+
+Version 2.2
+   Added the ability to edit TNI files as well as INI files.
+   Note: the inied1 client can handle remote TNI files but
+      not local TNI files.
+   Note: The inied2 and inied3 clients are not yet working and
+      therefore not included.  It is possible, depending on
+      whether they get promoted in my to-do list, that they
+      will never work.
+
+Version 2.1
+   Fixed a memory corruption problem.
+
+Version 2.0
+   Changed the default INIServe port to 3560/tcp.  This is
+      the IANA approved port number for INIServe.
+
