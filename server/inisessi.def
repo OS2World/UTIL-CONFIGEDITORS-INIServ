@@ -6,7 +6,7 @@ DEFINITION MODULE INISession;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        17 May 1999                     *)
+        (*  Last edited:        30 August 2014                  *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (********************************************************)
@@ -20,7 +20,7 @@ PROCEDURE SetTimeout (seconds: CARDINAL);
     (* Specifies how long a session can be idle before it is forcibly   *)
     (* closed.                                                          *)
 
-PROCEDURE NewSession (S: Socket);
+PROCEDURE NewSession (S: Socket): BOOLEAN;
 
     (* Starts and runs a client session.  The session runs in a separate        *)
     (* thread; this procedure returns after starting the session, it does not   *)

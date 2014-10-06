@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  PMOS/2 software library                                               *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE FileOps;
 
         (********************************************************)
@@ -10,7 +32,7 @@ IMPLEMENTATION MODULE FileOps;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            17 October 2001                 *)
-        (*  Last edited:        16 November 2012                *)
+        (*  Last edited:        22 January 2014                 *)
         (*  Status:             Working                         *)
         (*                                                      *)
         (*    The original version of this module used          *)
@@ -26,7 +48,7 @@ IMPLEMENTATION MODULE FileOps;
 IMPORT OS2, OS2A, FileSys, Strings;
 
 FROM SYSTEM IMPORT
-    (* type *)  LOC,
+    (* type *)  LOC, INT32,
     (* proc *)  ADR, CAST;
 
 FROM Types IMPORT
@@ -39,6 +61,8 @@ FROM LowLevel IMPORT
     (* proc *)  IAND, IOR;
 
 (************************************************************************)
+
+CONST Nul = CHR(0);
 
 VAR
     (* LongSupport is TRUE if the OS version is high enough to support  *)
@@ -61,7 +85,7 @@ TYPE
                                      OS2.ULONG, OS2.ULONG, OS2.ULONG,
                                      VAR [NIL] OS2.EAOP2): OS2.APIRET;
 
-    SetFilePtrLProc = PROCEDURE [OS2.APIENTRY] (OS2.HFILE, OS2.LONG,
+    SetFilePtrLProc = PROCEDURE [OS2.APIENTRY] (OS2.HFILE, OS2.ULONG,
                                  OS2.LONG, OS2.ULONG,
                                  OS2.PULONG): OS2.APIRET;
 
@@ -126,6 +150,19 @@ PROCEDURE GetCurrentDirectory (VAR (*OUT*) CurrentDir: ARRAY OF CHAR);
 (*                      GENERAL FILE OPERATIONS                         *)
 (************************************************************************)
 
+PROCEDURE IncreaseFileHandles;
+
+    (* Adds some more file handles to the process. *)
+
+    VAR cbReqCount: OS2.LONG;  cbCurMaxFH: OS2.ULONG;
+
+    BEGIN
+        cbReqCount := 32;
+        OS2.DosSetRelMaxFH (cbReqCount, cbCurMaxFH);
+    END IncreaseFileHandles;
+
+(************************************************************************)
+
 PROCEDURE OpenOldFile (name: ARRAY OF CHAR;  WillWrite: BOOLEAN;
                                              binary: BOOLEAN): ChanId;
 
@@ -158,7 +195,10 @@ PROCEDURE OpenOldFile (name: ARRAY OF CHAR;  WillWrite: BOOLEAN;
         ELSE
             rc := OS2.DosOpen (name, cid, Action, 0, 0, OpenFlags, Mode, NIL);
         END (*IF*);
-        IF rc <> 0 THEN
+        IF rc = OS2.ERROR_TOO_MANY_OPEN_FILES THEN
+            IncreaseFileHandles;
+            RETURN OpenOldFile (name, WillWrite, binary);
+        ELSIF rc <> 0 THEN
             cid := NoSuchChannel;
         END (*IF*);
         RETURN cid;
@@ -187,7 +227,10 @@ PROCEDURE OpenNewFile (name: ARRAY OF CHAR;  binary: BOOLEAN): ChanId;
         ELSE
             rc := OS2.DosOpen (name, cid, Action, 0, 0, OpenFlags, Mode, NIL);
         END (*IF*);
-        IF rc <> 0 THEN
+        IF rc = OS2.ERROR_TOO_MANY_OPEN_FILES THEN
+            IncreaseFileHandles;
+            RETURN OpenNewFile (name, binary);
+        ELSIF rc <> 0 THEN
             cid := NoSuchChannel;
         END (*IF*);
         RETURN cid;
@@ -404,7 +447,7 @@ PROCEDURE Exists (name: ARRAY OF CHAR): BOOLEAN;
         IF L > 0 THEN
             DEC (L);
             IF (name[L] = '\') OR (name[L] = '/') THEN
-                name[L] := CHR(0);
+                name[L] := Nul;
             END (*IF*);
         END (*IF*);
         RETURN FileSys.Exists (name);
@@ -578,7 +621,7 @@ PROCEDURE SetPosition (cid: ChanId;  position: FilePos);
 
     BEGIN
         IF LongSupport THEN
-            SetFilePtrL (cid, position.low, position.high,
+            SetFilePtrL (cid, position.low, CAST(INT32,position.high),
                                 OS2.FILE_BEGIN, ADR(Actual));
         ELSE
             SetPositionS (cid, position.low);
@@ -645,7 +688,7 @@ PROCEDURE ReadLine (cid: ChanId;  VAR (*OUT*) data: ARRAY OF CHAR);
     (* CRLF.  To avoid having to keep a lookahead character, I take     *)
     (* the LF as end of line and skip the CR.                           *)
 
-    CONST Nul = CHR(0);  CR = CHR(13);  LF = CHR(10);  CtrlZ = CHR(26);
+    CONST CR = CHR(13);  LF = CHR(10);  CtrlZ = CHR(26);
 
     VAR j, NumberRead: CARDINAL;
         ch: CHAR;
@@ -821,7 +864,7 @@ PROCEDURE FWriteLJString (cid: ChanId;  Buffer: ARRAY OF CHAR);
             Strings.Delete (Buffer, 0, j);
         END (*IF*);
         j := 0;
-        WHILE (j < HIGH(Buffer)) AND (Buffer[j] <> CHR(0)) DO
+        WHILE (j < HIGH(Buffer)) AND (Buffer[j] <> Nul) DO
             INC (j);
         END (* WHILE *);
         WriteRaw (cid, Buffer, j);
@@ -1123,9 +1166,58 @@ PROCEDURE GetEXEDirectory (VAR (*OUT*) Dir: ARRAY OF CHAR);
             j := 0;
         END (*IF*);
 
-        Dir[j] := CHR(0);
+        Dir[j] := Nul;
 
     END GetEXEDirectory;
+
+(************************************************************************)
+
+PROCEDURE GetProgName (VAR (*OUT*) name: ARRAY OF CHAR);
+
+    (* Returns the name of this executable, with path and extension     *)
+    (* removed.                                                         *)
+
+    VAR pPib: OS2.PPIB;  pTib: OS2.PTIB;
+        j, L: CARDINAL;  found: BOOLEAN;
+        longname: FilenameString;
+
+    BEGIN
+        OS2.DosGetInfoBlocks (pTib, pPib);
+        IF OS2.DosQueryModuleName (pPib^.pib_hmte, OS2.CCHMAXPATH,
+                                              longname) <> OS2.NO_ERROR THEN
+            longname[0] := Nul;
+        END (*IF*);
+
+        L := LENGTH (longname);
+        IF L > 0 THEN
+
+            (* Find the last '\' or '/'. *)
+
+            j := L-1;
+            WHILE (j > 0) AND (longname[j] <> '\') AND (longname[j] <> '/') DO
+                DEC (j);
+            END (*WHILE*);
+
+            (* Strip the drive and path. *)
+
+            IF (longname[j] = '\') OR (longname[j] = '/') THEN
+                Strings.Delete (longname, 0, j+1);
+                DEC (L, j+1);
+            END (*IF*);
+        END (*IF*);
+
+        IF L > 0 THEN
+            (* Remove the extension, if any. *)
+
+            Strings.FindPrev ('.', longname, L-1, found, j);
+            IF found THEN
+                longname[j] := Nul;
+            END (*IF*);
+        END (*IF*);
+
+        Strings.Assign (longname, name);
+
+    END GetProgName;
 
 (************************************************************************)
 
@@ -1150,7 +1242,7 @@ PROCEDURE SetWorkingDirectory;
             WHILE (j > 0) AND (PathName[j] <> '\') DO
                 DEC (j);
             END (*WHILE*);
-            PathName[j] := CHR(0);
+            PathName[j] := Nul;
 
             (* Extract the drive name and set working drive. *)
 
@@ -1173,6 +1265,6 @@ PROCEDURE SetWorkingDirectory;
 BEGIN
     OS2.DosError (OS2.FERR_DISABLEHARDERR); (* disable hard error popups *)
     CheckSystemVersion;
-    OS2.DosSetMaxFH (100);
+    (*OS2.DosSetMaxFH (500);*)      (* Call removed -- obsolete *)
 END FileOps.
 

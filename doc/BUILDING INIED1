@@ -1,0 +1,19 @@
+HOW TO BUILD INIED1.EXE
+
+The source file for this INIServe client is the resource file
+INIED1.RES.  It contains Rexx code and some other (binary)
+information, for use with the development platform DrDialog.
+To create the executable, drop INIED1.RES onto the REStoEXE
+object that was created when you installed DrDialog.
+
+(I intended to create a client in Modula-2, to avoid the
+crypticity of Rexx code, but never found the time to finish
+the job. Sorry. But in any case this client is not an essential
+part of the INIServe package; it is merely a demonstration.)
+
+DrDialog is an IBM EWS (Employee Written Software) program,
+originally available from the IBM Developer Connection web site.
+Although IBM appears to have hidden or destroyed most of its
+valuable Developer Connection software, you should still be 
+able to find DrDialog at http://www.hobbes.nmsu.edu.
+

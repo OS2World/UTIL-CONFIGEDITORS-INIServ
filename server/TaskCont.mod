@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  PMOS/2 software library                                               *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE TaskControl;
 
 <* IF NOT multithread THEN *>
@@ -12,7 +34,7 @@ IMPLEMENTATION MODULE TaskControl;
         (*                  related procedures.                         *)
         (*                                                              *)
         (*      Programmer:     P. Moylan                               *)
-        (*      Last edited:    1 January 2013                          *)
+        (*      Last edited:    22 December 2013                        *)
         (*      Status:         OK                                      *)
         (*                                                              *)
         (*    Note that most of the PMOS kernel is missing from this    *)
@@ -92,12 +114,17 @@ TYPE
 (************************************************************************)
 
 VAR
+    (* The number of tasks now in the system, and the maximum allowed. *)
+
+    NumberOfThreads, MaxNumberOfThreads: CARDINAL;
+
     (* The list of all tasks known to us. *)
 
     MasterTaskList: Task;
 
     (* Mutual exclusion semaphore.  We must lock this for any access to *)
-    (* the task list.                                                   *)
+    (* the task list.  For simplicity we also use this as the mutex     *)
+    (* protecting the variables NumberOfThreads and MaxNumberOfThreads. *)
 
     TaskListAccess: OS2.HMTX;
 
@@ -376,17 +403,31 @@ PROCEDURE TaskWrapper;
 (************************************************************************)
 
 PROCEDURE CreateTask0 (StartAddress0: PROC;  StartAddress1: PROC1;
-                                   taskpriority: PriorityLevel;
-                                   taskname: NameString;  param: ADDRESS);
+                          taskpriority: PriorityLevel;
+                          taskname: NameString;  param: ADDRESS): BOOLEAN;
 
     (* The common code for CreateTask and CreateTask1, below.           *)
 
     VAR StartInfo: TaskStartInfo;  T: Task;
         id: Processes.ProcessId;
+        success: BOOLEAN;
 
     BEGIN
+        LockTaskList;
+        success := NumberOfThreads < MaxNumberOfThreads;
+        IF success THEN
+            INC (NumberOfThreads);
+        END (*IF*);
+        UnlockTaskList;
+        IF NOT success THEN
+            RETURN FALSE;
+        END (*IF*);
         T := NewTaskDescriptor (taskname);
-        Assert (T <> NIL);
+        success := T <> NIL;
+        IF NOT success THEN
+            RETURN FALSE;
+        END (*IF*);
+
         NEW (StartInfo);
         WITH StartInfo^ DO
             HasParameter := StartAddress1 <> NIL;
@@ -402,13 +443,14 @@ PROCEDURE CreateTask0 (StartAddress0: PROC;  StartAddress1: PROC1;
         END (*WITH*);
 
         Processes.Start (TaskWrapper, StackSize, taskpriority, StartInfo, id);
+        RETURN success;
 
     END CreateTask0;
 
 (************************************************************************)
 
 PROCEDURE CreateTask (StartAddress: PROC;  taskpriority: PriorityLevel;
-                                                taskname: NameString);
+                                           taskname: NameString): BOOLEAN;
 
     (* Must be called to introduce a task to the system. The first      *)
     (* parameter, which should be the name of a procedure containing    *)
@@ -418,20 +460,30 @@ PROCEDURE CreateTask (StartAddress: PROC;  taskpriority: PriorityLevel;
     (* becomes ready.                                                   *)
 
     BEGIN
-        CreateTask0 (StartAddress, NIL, taskpriority, taskname, NIL);
+        RETURN CreateTask0 (StartAddress, NIL, taskpriority, taskname, NIL);
     END CreateTask;
 
 (************************************************************************)
 
 PROCEDURE CreateTask1 (StartAddress: PROC1;  taskpriority: PriorityLevel;
-                                   taskname: NameString;  param: ADDRESS);
+                          taskname: NameString;  param: ADDRESS): BOOLEAN;
 
     (* Like CreateTask, but allows the passing of a single parameter    *)
     (* "param" to the task.                                             *)
 
     BEGIN
-        CreateTask0 (NIL, StartAddress, taskpriority, taskname, param);
+        RETURN CreateTask0 (NIL, StartAddress, taskpriority, taskname, param);
     END CreateTask1;
+
+(************************************************************************)
+
+PROCEDURE ThreadCount(): CARDINAL;
+
+    (* Returns the number of currently running threads. *)
+
+    BEGIN
+        RETURN NumberOfThreads;
+    END ThreadCount;
 
 (************************************************************************)
 (*                           TASK TERMINATION                           *)
@@ -513,6 +565,7 @@ PROCEDURE TaskExit;
 
         END (*IF*);
 
+        DEC (NumberOfThreads);
         UnlockTaskList;
 
         Processes.StopMe;
@@ -781,6 +834,7 @@ PROCEDURE CreateMainTaskDescriptor;
         IF errno <> 0 THEN
             SemError (eventsem, errno);
         END (*IF*);
+        INC (NumberOfThreads);
         UnlockTaskList;
     END CreateMainTaskDescriptor;
 
@@ -794,6 +848,8 @@ BEGIN
     IF errno <> 0 THEN
         SemError (mutexsem, errno);
     END (*IF*);
+    MaxNumberOfThreads := 256;
+    NumberOfThreads := 0;
     MasterTaskList := NIL;
     CreateMainTaskDescriptor;
 END TaskControl.

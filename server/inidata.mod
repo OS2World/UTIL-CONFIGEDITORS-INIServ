@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  Support modules for network applications                              *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE INIData;
 
         (************************************************************)
@@ -5,7 +27,7 @@ IMPLEMENTATION MODULE INIData;
         (*               Looking after our INI file data            *)
         (*                                                          *)
         (*    Started:        30 March 2000                         *)
-        (*    Last edited:    23 July 2012                          *)
+        (*    Last edited:    9 June 2013                           *)
         (*    Status:         OK                                    *)
         (*                                                          *)
         (************************************************************)
@@ -188,7 +210,8 @@ PROCEDURE ItemSize (hini: HINI;  VAR (*IN*) application: ARRAY OF CHAR;
 
 (********************************************************************************)
 
-PROCEDURE INIGetTrusted (hini: HINI;  VAR (*IN*) application, key: ARRAY OF CHAR;
+PROCEDURE INIGetTrusted (hini: HINI;  VAR (*IN*) application: ARRAY OF CHAR;
+                                       key: ARRAY OF CHAR;
                                        VAR (*OUT*) result: ARRAY OF LOC;
                                                          size: CARDINAL): BOOLEAN;
 
@@ -520,6 +543,9 @@ PROCEDURE SetInitialWindowPosition (hwnd: OS2.HWND;
 
     BEGIN
         hini := OpenINIFile(INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "WindowPos";
         IF INIGet (hini, app, label, pos) THEN
             OS2.WinSetWindowPos (hwnd, 0, pos.x, pos.y, 0, 0, OS2.SWP_MOVE);
@@ -549,6 +575,9 @@ PROCEDURE SetInitialWindowSize (hwnd: OS2.HWND;
 
     BEGIN
         hini := OpenINIFile (INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "WindowSize";
         IF INIGet (hini, app, label, pos) THEN
             OS2.WinSetWindowPos (hwnd, 0, 0, 0, pos.x, pos.y, OS2.SWP_SIZE);
@@ -571,6 +600,9 @@ PROCEDURE SetFont (hwnd: OS2.HWND;  INIFileName, label: ARRAY OF CHAR;
 
     BEGIN
         hini := OpenINIFile(INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "Font";
         IF NOT INIGetString (hini, app, label, FontName)
                       OR (FontName[0] = Nul) THEN
@@ -606,6 +638,9 @@ PROCEDURE StoreWindowPosition (hwnd: OS2.HWND;
             FontName[length] := Nul;
         END (*IF*);
         hini := OpenINIFile(INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "WindowPos";
         INIPut (hini, app, label, pos);
         app := "Font";
@@ -631,6 +666,9 @@ PROCEDURE StoreWindowSize (hwnd: OS2.HWND;
         OS2.WinQueryWindowPos (hwnd, swp);
         pos.x := swp.cx;  pos.y := swp.cy;
         hini := OpenINIFile (INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "WindowSize";
         INIPut (hini, app, label, pos);
         CloseINIFile (hini);
@@ -658,6 +696,9 @@ PROCEDURE StoreFont (hwnd: OS2.HWND;   INIFileName, label: ARRAY OF CHAR;
             FontName[length] := Nul;
         END (*IF*);
         hini := OpenINIFile(INIFileName, UseTNI);
+        IF hini = NIL THEN
+            hini := CreateINIFile(INIFileName, UseTNI);
+        END (*IF*);
         app := "Font";
         INIPutString (hini, app, label, FontName);
         CloseINIFile (hini);

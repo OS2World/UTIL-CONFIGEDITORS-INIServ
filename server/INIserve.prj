@@ -1,0 +1,16 @@
+-multithread+
+-link    = "xlink /MAP @%s",mkfname#mkfext;
+
+-INCL_VIO:+
+-INCL_KBD:+
+-INCL_DOS:+
+-INCL_DOSERRORS:+
+-INCL_MOU:+
+-INCL_WINSHELLDATA:+
+-INCL_DOSDEVIOCTL:+
+-INCL_WININPUT:+
+
+!module INIServe
+!module SO32DLL.lib
+!module TCP32DLL.lib
+

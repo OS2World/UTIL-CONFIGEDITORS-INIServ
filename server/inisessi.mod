@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  INIServe server for remote access to INI/TNI files.                   *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE INISession;
 
         (********************************************************)
@@ -6,7 +28,7 @@ IMPLEMENTATION MODULE INISession;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        17 May 1999                     *)
+        (*  Last edited:        30 August 2014                  *)
         (*  Status:             Working                         *)
         (*                                                      *)
         (********************************************************)
@@ -203,7 +225,7 @@ PROCEDURE SessionHandler (arg: ADDRESS);
 
         (* Create an instance of the TimeoutChecker task. *)
 
-        CreateTask1 (TimeoutChecker, 3, "INIServe timeout", SDP);
+        EVAL (CreateTask1 (TimeoutChecker, 3, "INIServe timeout", SDP));
 
         (* Send the "welcome" message. *)
 
@@ -239,7 +261,7 @@ PROCEDURE SessionHandler (arg: ADDRESS);
 
 (********************************************************************************)
 
-PROCEDURE NewSession (S: Socket);
+PROCEDURE NewSession (S: Socket): BOOLEAN;
 
     (* Starts and runs a client session.  The session runs in a separate        *)
     (* thread; this procedure returns after starting the session, it does not   *)
@@ -250,7 +272,7 @@ PROCEDURE NewSession (S: Socket);
     BEGIN
         NEW (SDP);
         SDP^.socket := S;
-        CreateTask1 (SessionHandler, 3, "INIServe session", SDP);
+        RETURN CreateTask1 (SessionHandler, 3, "INIServe session", SDP);
     END NewSession;
 
 (********************************************************************************)

@@ -10,7 +10,7 @@ DEFINITION MODULE FileOps;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            17 October 2001                 *)
-        (*  Last edited:        16 November 2012                *)
+        (*  Last edited:        19 October 2013                 *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (*    The original version of this module used          *)
@@ -277,6 +277,15 @@ PROCEDURE NextDirEntry (VAR (*INOUT*) D: DirectoryEntry): BOOLEAN;
 PROCEDURE DirSearchDone (VAR (*INOUT*) D: DirectoryEntry);
 
     (* Close the directory that D represents. *)
+
+(************************************************************************)
+(*                           MISCELLANEOUS                              *)
+(************************************************************************)
+
+PROCEDURE GetProgName (VAR (*OUT*) name: ARRAY OF CHAR);
+
+    (* Returns the name of this executable, with path and extension     *)
+    (* removed.                                                         *)
 
 (************************************************************************)
 

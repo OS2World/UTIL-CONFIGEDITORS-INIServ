@@ -1,0 +1,22 @@
+HOW TO BUILD INISERVE.EXE
+
+This program was built using the XDS Modula-2 compiler, but it
+should work with any Modula-2 compiler compatible with the
+current language standard.  The project options are specified in
+the included file INIServe.prj.  See also the file makezip.cmd, which
+is the batch file that was used to generate the zip file that you
+received when you obtained this program.  The line in makezip.cmd
+that says
+      xc =p iniserve.prj
+is the command that compiles and links all the modules.
+
+The required files SO32DLL.LIB and TCP32DLL.LIB can be found in
+the OS2TK45 directory of most eCS installations.  If you don't have that
+directory, search for the OS/2 development toolkit on the usual OS/2
+software sites.
+
+The IMPORTS program that is referred to in makezip.cmd is not needed
+to make this program, only to zip up the sources.  It is not available at
+the time of writing this document, but I'll make it available as freeware
+as soon as possible.
+

@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  Support modules for network applications                              *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE Heap;
 
         (************************************************************)
@@ -5,7 +27,7 @@ IMPLEMENTATION MODULE Heap;
         (*      Heap storage, with a way to log the amount used     *)
         (*                                                          *)
         (*    Started:        22 July 2012                          *)
-        (*    Last edited:    26 December 2013                      *)
+        (*    Last edited:    22 December 2013                      *)
         (*    Status:         OK                                    *)
         (*                                                          *)
         (************************************************************)
@@ -27,9 +49,11 @@ FROM Timer IMPORT
 FROM Inet2Misc IMPORT
     (* proc *)  ConvertCard;
 
+<* IF pm = "FALSE" THEN *>
 FROM TransLog IMPORT
     (* type *)  TransactionLogID,
     (* proc *)  LogTransaction;
+<* END *>
 
 (************************************************************************)
 
@@ -49,7 +73,9 @@ TYPE
 VAR
     (* Variables needed for logging memory usage. *)
 
-    LogID: TransactionLogID;
+    <* IF pm = "FALSE" THEN *>
+        LogID: TransactionLogID;
+    <* END *>
     MemCount: CARDINAL;
     MemCountLock: Lock;
 
@@ -100,6 +126,8 @@ PROCEDURE DEALLOCATE (VAR (*INOUT*) addr: SYSTEM.ADDRESS; amount: CARDINAL);
     END DEALLOCATE;
 
 (************************************************************************)
+
+<* IF pm = "FALSE" THEN *>
 
 PROCEDURE GetHeapCount(): CARDINAL;
 
@@ -195,8 +223,7 @@ PROCEDURE EnableHeapLogging (ID: TransactionLogID);
     BEGIN
         IF NOT LogTaskRunning THEN
             LogID := ID;
-            CreateTask (HeapLogTask, 2, "Heap log");
-            LogTaskRunning := TRUE;
+            LogTaskRunning := CreateTask (HeapLogTask, 2, "Heap log");
         END (*IF*);
     END EnableHeapLogging;
 
@@ -213,6 +240,8 @@ PROCEDURE StopHeapLogging;
             LogTaskRunning := FALSE;
         END (*IF*);
     END StopHeapLogging;
+
+<* END *>
 
 (************************************************************************)
 (*                      TRACKING A SUBSET OF USE                        *)
@@ -261,7 +290,9 @@ BEGIN
     CreateSemaphore (ShutdownRequested, 0);
     CreateSemaphore (TaskDone, 0);
 FINALLY
-    StopHeapLogging;
+    <* IF pm = "FALSE" THEN *>
+        StopHeapLogging;
+    <* END *>
     DestroySemaphore (TaskDone);
     DestroySemaphore (ShutdownRequested);
     DestroyLock (MemCountLock);

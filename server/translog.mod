@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  Support modules for network applications                              *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE TransLog;
 
         (********************************************************)
@@ -6,7 +28,7 @@ IMPLEMENTATION MODULE TransLog;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            16 March 1999                   *)
-        (*  Last edited:        4 September 2012                *)
+        (*  Last edited:        25 May 2014                     *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (*     Now working on the concept of having different   *)
@@ -125,11 +147,13 @@ TYPE
 
     (* A LogContext is the support for a collection of log IDs. *)
 
+    FlagArray = ARRAY TargetType OF BOOLEAN;
+
     LogContext = POINTER TO
                      RECORD
                          group: FileShareGroup;
                          level: CARDINAL;
-                         Target: ARRAY TargetType OF BOOLEAN;
+                         Target: FlagArray;
                      END (*RECORD*);
 
     (* A TransactionLogID is a context plus a text label. *)
@@ -144,7 +168,8 @@ TYPE
 
 CONST
     Nul = CHR(0);
-    MaxLineLength = 256;
+    PreambleSize = 29;      (* typical, but give this a re-think. *)
+    MaxLineLength = 256+PreambleSize;
     BlankLine = "                                                                                ";
 
 TYPE
@@ -369,8 +394,7 @@ PROCEDURE CopyToPipe (ptext: LogLinePtr);
     BEGIN
         WITH Pipe DO
             IF NOT PipeTaskRunning THEN
-                PipeTaskRunning := TRUE;
-                CreateTask (PipeTask, 5, "pipe output");
+                PipeTaskRunning := CreateTask (PipeTask, 5, "pipe output");
             END (*IF*);
             Obtain (access);
             IF open THEN
@@ -797,8 +821,9 @@ PROCEDURE CreateGroup (name: ARRAY OF CHAR): FileShareGroup;
 
             (* Start the disk file updater. *)
 
-            CreateTask1 (TransactionLogUpdateTask, 3, "trlog update", G);
-            UpdateTaskRunning := TRUE;
+            UpdateTaskRunning :=
+                        CreateTask1 (TransactionLogUpdateTask,
+                                         3, "trlog update", G);
 
         END (*WITH*);
 
@@ -1039,6 +1064,7 @@ PROCEDURE StartTransactionLogging (ctx: LogContext;
     (* change in level requires this.                                   *)
 
     VAR UsedPipe, UsedSyslog, changefile: BOOLEAN;
+        target: FlagArray;
         t: TargetType;
 
     BEGIN
@@ -1061,6 +1087,7 @@ PROCEDURE StartTransactionLogging (ctx: LogContext;
             (* Remove this context from its file share group. *)
 
             IF ctx^.Target[todisk] THEN
+                ctx^.Target[todisk] := FALSE;
                 RemoveFromGroup (ctx);
             END (*IF*);
 
@@ -1073,21 +1100,28 @@ PROCEDURE StartTransactionLogging (ctx: LogContext;
 
             ctx^.level := level;
             FOR t := MIN(TargetType) TO MAX(TargetType) DO
-                ctx^.Target[t] := ODD(level);
+                target[t] := ODD(level);
                 level := level DIV 2;
             END (*FOR*);
 
             (* If we are now logging to disk, put this context into *)
             (* the group appropriate to the log file name.          *)
 
-            IF ctx^.Target[todisk] THEN
+            IF target[todisk] THEN
                 ctx^.group := PutIntoGroup (ctx, LogfileName);
             END (*IF*);
 
             (* Open or close the pipe and syslog socket, as necessary. *)
 
-            StartStopPipeAndSyslog (ctx^.Target[topipe], UsedPipe,
-                                    ctx^.Target[tosyslog], UsedSyslog);
+            StartStopPipeAndSyslog (target[topipe], UsedPipe,
+                                    target[tosyslog], UsedSyslog);
+
+            (* Set the flags for log targets. We have not committed     *)
+            (* them until now because we don't wamt ctx^.Target[todisk] *)
+            (* to be set until ctx^.group exists.                       *)
+
+            ctx^.Target := target;
+
         END (*IF*);
 
     END StartTransactionLogging;

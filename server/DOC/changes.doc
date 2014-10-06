@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+Version 2.5     (2 Sep 2014)
+   Re-released to include some missing build information.
+
+Version 2.4    (30 Aug 2014)
+   Re-released with GPL licence.
+
 Version 2.3
    Rebuild to fix a semaphore leak.
    Added bldlevel information to the executables.

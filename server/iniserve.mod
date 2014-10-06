@@ -1,3 +1,25 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  INIServe server for remote access to INI/TNI files.                   *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 MODULE INIServe;
 
         (********************************************************)
@@ -6,7 +28,7 @@ MODULE INIServe;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        6 January 2013                  *)
+        (*  Last edited:        30 August 2014                  *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (********************************************************)
@@ -215,7 +237,7 @@ PROCEDURE RunTheServer;
                 WriteCard (ns);  WriteLn;
                 EVAL (SetBreakHandler (ControlCHandler));
             END (*IF*);
-            NewSession (ns);
+            EVAL(NewSession (ns));
 
         ELSE
 
@@ -274,7 +296,7 @@ PROCEDURE RunTheServer;
                         temp := SIZE(client);
                         ns := accept (MainSocket, client, temp);
                         IF ns <> NotASocket THEN
-                            NewSession (ns);
+                            EVAL(NewSession (ns));
                         END (*IF*);
                     END (*IF*);
                     SocketsToTest[0] := MainSocket;

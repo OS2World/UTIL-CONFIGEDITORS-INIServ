@@ -4,14 +4,14 @@ DEFINITION MODULE ISV;
         (*                                                              *)
         (*                   INIServe version number                    *)
         (*                                                              *)
-        (*    Last edited:    6 January 2013                            *)
+        (*    Last edited:    2 September 2014                          *)
         (*    Status:         OK                                        *)
         (*                                                              *)
         (****************************************************************)
 
 
 CONST
-    version = "2.3";
+    version = "2.5";
 
 END ISV.
 

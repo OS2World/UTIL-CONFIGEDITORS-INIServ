@@ -5,7 +5,7 @@ DEFINITION MODULE INIData;
         (*               Looking after INI file data                *)
         (*                                                          *)
         (*    Started:        30 March 2000                         *)
-        (*    Last edited:    24 April 2012                         *)
+        (*    Last edited:    9 June 2013                           *)
         (*    Status:         Working                               *)
         (*                                                          *)
         (************************************************************)
@@ -44,7 +44,8 @@ PROCEDURE ItemSize (hini: HINI;  VAR (*IN*) application: ARRAY OF CHAR;
     (* Sets size to the size in bytes of the given INI file entry,      *)
     (* or returns FALSE if there is no such entry.                      *)
 
-PROCEDURE INIGetTrusted (hini: HINI;  VAR (*IN*) application, key: ARRAY OF CHAR;
+PROCEDURE INIGetTrusted (hini: HINI;  VAR (*IN*) application: ARRAY OF CHAR;
+                                       key: ARRAY OF CHAR;
                                        VAR (*OUT*) result: ARRAY OF LOC;
                                                          size: CARDINAL): BOOLEAN;
 

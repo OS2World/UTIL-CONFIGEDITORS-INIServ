@@ -1,12 +1,34 @@
+(**************************************************************************)
+(*                                                                        *)
+(*  Support modules for network applications                              *)
+(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU General Public License as published by  *)
+(*  the Free Software Foundation, either version 3 of the License, or     *)
+(*  (at your option) any later version.                                   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful,       *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(*  GNU General Public License for more details.                          *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU General Public License     *)
+(*  along with this program.  If not, see <http://www.gnu.org/licenses/>. *)
+(*                                                                        *)
+(*  To contact author:   http://www.pmoylan.org   peter@pmoylan.org       *)
+(*                                                                        *)
+(**************************************************************************)
+
 IMPLEMENTATION MODULE MyClock;
 
         (********************************************************)
         (*                                                      *)
-        (*       Conversion of date and time to string          *)
+        (*   Conversion of date and time to various formats     *)
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            26 June 1998                    *)
-        (*  Last edited:        18 October 2004                 *)
+        (*  Last edited:        9 January 2013                  *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (********************************************************)
@@ -63,7 +85,8 @@ PROCEDURE AdjustTime (VAR (*INOUT*) date: DateTime;  addminutes: INTEGER);
 
         BEGIN
             IF (date.day < DaysInMonth[date.month])
-                       OR ((date.month = 2) AND IsLeapYear(date.year)) THEN
+                       OR ((date.month = 2)
+                            AND IsLeapYear(date.year) AND (date.day = 28)) THEN
                 INC (date.day);
             ELSE
                 date.day := 1;
@@ -531,6 +554,30 @@ PROCEDURE CurrentDateAndTime (VAR (*OUT*) result: ARRAY OF CHAR);
         GetClock (now);
         DateTimeToString (now, result);
     END CurrentDateAndTime;
+
+(********************************************************************************)
+
+PROCEDURE PackedCurrentDateTime(): CARDINAL;
+
+    (* Encodes the current date and time as a 32-bit integer, using 16 bits     *)
+    (* for date and 16 bits for time.                                           *)
+
+    CONST shift = 65536;
+
+    VAR now: DateTime;  date, time: CARDINAL;
+
+    BEGIN
+        GetClock (now);
+        WITH now DO
+            IF year < 1980 THEN year := 0;
+            ELSE DEC(year,1980);
+            END (*IF*);
+            IF year > 127 THEN year := 127 END (*IF*);
+            date := 32*(16*year + month) + day;
+            time := 32*(64*hour + minute) + second DIV 2;
+        END (*WITH*);
+        RETURN shift*date + time;
+    END PackedCurrentDateTime;
 
 (********************************************************************************)
 

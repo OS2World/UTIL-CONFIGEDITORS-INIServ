@@ -12,7 +12,7 @@ INIServe is a server application that allows a remote client to edit
 INI file entries on the machine on which INIServe is running.  It is
 distributed as freeware. You may distribute it with your own
 applications.
-This documentation is for version 2.3.
+This documentation is for version 2.4.
 :p.
 :hp2.Disclaimer of Warranty:ehp2.
 
