@@ -28,7 +28,7 @@ IMPLEMENTATION MODULE INIFiles;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            30 May 1998                     *)
-        (*  Last edited:        3 June 2002                     *)
+        (*  Last edited:        21 July 2015                    *)
         (*  Status:             OK except that FileDelete       *)
         (*                            is untested               *)
         (*                                                      *)

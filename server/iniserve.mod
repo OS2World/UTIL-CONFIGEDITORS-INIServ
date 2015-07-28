@@ -28,7 +28,7 @@ MODULE INIServe;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        30 August 2014                  *)
+        (*  Last edited:        21 July 2015                    *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (********************************************************)
@@ -237,13 +237,13 @@ PROCEDURE RunTheServer;
                 WriteCard (ns);  WriteLn;
                 EVAL (SetBreakHandler (ControlCHandler));
             END (*IF*);
-            EVAL(NewSession (ns));
+            EVAL(NewSession (ns, ScreenEnabled));
 
         ELSE
 
             IF ScreenEnabled THEN
                 WriteString ("INIServe v");  WriteString (ISV.version);
-                WriteString ("  Copyright (C) 1999-2013 Peter Moylan.");
+                WriteString ("  Copyright (C) 1999-2015 Peter Moylan.");
                 WriteLn;  WriteHostID (Swap4(gethostid()));  WriteLn;
                 EVAL (SetBreakHandler (ControlCHandler));
             END (*IF*);
@@ -293,10 +293,22 @@ PROCEDURE RunTheServer;
                 SocketsToTest[0] := MainSocket;
                 WHILE select (SocketsToTest, 1, 0, 0, MAX(CARDINAL)) > 0 DO
                     IF SocketsToTest[0] <> NotASocket THEN
+                        (*
+                        IF ScreenEnabled THEN
+                            WriteString ("New connection attempt");
+                            WriteLn;
+                        END (*IF*);
+                        *)
                         temp := SIZE(client);
                         ns := accept (MainSocket, client, temp);
                         IF ns <> NotASocket THEN
-                            EVAL(NewSession (ns));
+                            (*
+                            IF ScreenEnabled THEN
+                                WriteString ("Starting new session");
+                                WriteLn;
+                            END (*IF*);
+                            *)
+                            EVAL(NewSession (ns, ScreenEnabled));
                         END (*IF*);
                     END (*IF*);
                     SocketsToTest[0] := MainSocket;

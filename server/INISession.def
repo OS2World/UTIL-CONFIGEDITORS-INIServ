@@ -1,0 +1,30 @@
+DEFINITION MODULE INISession;
+
+        (********************************************************)
+        (*                                                      *)
+        (*    Part of the INIServe server - handles a session   *)
+        (*                                                      *)
+        (*  Programmer:         P. Moylan                       *)
+        (*  Started:            24 May 1998                     *)
+        (*  Last edited:        21 June 2015                    *)
+        (*  Status:             OK                              *)
+        (*                                                      *)
+        (********************************************************)
+
+
+FROM Sockets IMPORT
+    (* type *)  Socket;
+
+PROCEDURE SetTimeout (seconds: CARDINAL);
+
+    (* Specifies how long a session can be idle before it is forcibly   *)
+    (* closed.                                                          *)
+
+PROCEDURE NewSession (S: Socket;  NotDetached: BOOLEAN): BOOLEAN;
+
+    (* Starts and runs a client session.  The session runs in a separate        *)
+    (* thread; this procedure returns after starting the session, it does not   *)
+    (* wait until the session is over.                                          *)
+
+END INISession.
+
