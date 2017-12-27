@@ -1,5 +1,17 @@
 LIST OF CHANGES
 
+Version 2.8    (22 Jul 2017)
+   Response to 'F' command is '-' if file cannot be
+      opened as an INI or TNI file.
+
+Version 2.7    (19 Jul 2017)
+   Updated documentation to make it clear that we can
+      handle both INI and TNI files.
+
+Version 2.6    (21 Jul 2015)
+   Fixed: truncation of long command lines.
+   The server now handles commands of arbitrary length.
+
 Version 2.5     (2 Sep 2014)
    Re-released to include some missing build information.
 

@@ -9,10 +9,11 @@
 :h1.Introduction
 :p.
 INIServe is a server application that allows a remote client to edit
-INI file entries on the machine on which INIServe is running.  It is
+INI and TNI file entries on the machine on which INIServe is running.  It is
 distributed as freeware. You may distribute it with your own
-applications.
-This documentation is for version 2.4.
+applications, but for commercial software the price you charge should not be
+different from what you would have charged without INIServe included.
+This documentation is for version 2.8.
 :p.
 :hp2.Disclaimer of Warranty:ehp2.
 
@@ -80,6 +81,23 @@ files via operating system API calls should be able to be modified,
 with relatively little effort, to instead use INIServe commands
 to read and write INI data.
 
+:p.INIServe can also be used for remote editing of TNI files. The
+TNI format is a format that I designed for my own applications, but
+there are no licensing restrictions that would prevent anyone from
+using the same format. A TNI file holds the same information as an
+INI file, but in human-readable form.
+
+:p.The decision as to whether to work with the INI or the TNI
+format is based entirely on the file name of the file to be
+edited. (The client specifies this with the 'F' command - see later
+in this document.) If the file name ends with ".TNI" then we do
+TNI editing. Otherwise, we assume that the file is an INI file.
+
+:p.To avoid tedious duplication, this manual uses the term "INI file"
+to mean either a standard OS/2 INI file or a TNI file. Anything that
+applies to one format also applies to the other, except of course
+in descriptions of the file format.
+
 .***********************************
 .*   WHAT'S IN AN INI FILE?
 .***********************************
@@ -96,7 +114,9 @@ little bits of information that aren't big enough to deserve a file
 of their own.
 
 :p.Internally, the file is a binary file, and I don't plan to tell
-you about the precise internal structure. (I believe it's documented somewhere on Hobbes.) The
+you about the precise internal structure. (I believe it's documented
+somewhere on Hobbes. There is also partial documentation in the manual
+for the GenINI package, which can be fetched from the same place you got INIServe.) The
 important thing is that OS/2 provides API calls that let a programmer
 read and write INI file entries.
 
@@ -131,6 +151,34 @@ modifying anything in an INI file, make sure that you understand what
 the modification will do.
 
 .***********************************
+.*   WHAT'S IN A TNI FILE?
+.***********************************
+
+:h1 id=TNIFileDescription.The contents of a TNI file
+
+:p.A TNI file holds the same sort of information as an INI file, but
+it is a text file rather than a binary file. That is, it is human-readable.
+
+:p.One motivation for using the TNI format is precisely that it is
+human-readable. There are times when it is convenient to be able to
+edit INI data in a simple text editor. A more important motivation is
+that there are some situations, typically when your machine is heavily
+loaded, where INI data can be corrupted because of the way it is stored
+in memory. INI data are held in what is called "shared memory", a region
+with limited capacity, so that it is possible to run out of memory.
+TNI data don't have such a tight restriction, so the risk of data
+corruption is very much lower.
+
+:p.If you want more details on the precise format, fetch the GenINI
+package from the same place where you found INIServe. That package
+contains utilities to convert between the INI and TNI formats, and it
+also documents the format specification.
+
+:p.INIServe assumes the TNI format if the file specification (given in
+the 'F' command; see later in this manual) is a file name that ends in
+".TNI". With any other filename ending, the INI format is assumed.
+
+.***********************************
 .*   FUNCTIONAL VIEW OF SERVER COMMANDS
 .***********************************
 
@@ -152,11 +200,11 @@ by an ASCII line feed.
 kinds of response.
 :ul.
 :li.If the command failed or was rejected, the response starts with the
-'-' character, and this might be followed by a plain-text error message.
+'-' character, and this might (or might not) be followed by a plain-text error message.
 :li.If the command was successful, the first character of the response is
 the '+' character, and then the data follows if this is the sort of
 command that returns data. Most commands don't return anything except the
-'+' or '-'; the exceptions are&colon.
+'+' or '-'. The exceptions are&colon.
 :ul.
 :li.The S and T commands produce a numeric reply, and this comes as a
 hexadecimal number immediately after the '+'.
@@ -207,7 +255,7 @@ with the '+' character.
 :exmp.
 :p.If the password is correct, the server replies with another confirmation line,
 and the client is then able to issue other commands. The default password is
-the empty string, but this can be changed by changing the password in
+the empty string, but this can (and should) be changed by changing the password in
 INIServe.INI.
 
 .***********************************
@@ -219,8 +267,8 @@ INIServe.INI.
 :p.Three commands are useful here. The L command gives a listing of a
 specified directory. (If no directory name is specified, it gives a
 listing of the current directory.) The C command is a "change directory" command. Finally,
-the F command specifies a file name; this should be the name of an INI
-file, of course.
+the F command specifies a file name; this should be the name of a TNI file
+if the name ends with ".TNI", and the name of an INI file otherwise.
 
 :p.The parameters for these commands can be either an absolute path,
 or a path relative to the current directory. Initially the "current
@@ -375,7 +423,7 @@ command is illegal.
 :p.The C, F, and L commands have already been mentioned.  The C
 command is for changing the current directory, the L command is
 for obtaining a directory listing, and the F command is to specify
-which INI file you will be operating on.
+which INI or TNI file you will be operating on.
 
 :p.Sometimes you need to manipulate files on the remote system.
 The M command is for creating a new directory, the R command
@@ -643,9 +691,11 @@ do before reading or writing INI file entries. The file name after
 the F can either be a complete path string, or a name relative to
 the directory that was most recently set by the C command.
 
-:p.Physically, this does not open the file. It simply sets the name
+:p.Physically, this does not open the file and leave it open. It simply sets the name
 of the file to be worked on. For safety, the server opens and
-re-closes the file for every operation on the file; this is mildly
+re-closes the file for every operation on the file, including this one.
+(We do this to confirm that the file can be opened as an INI or TNI file.
+If it cannot, we return the failure reply.) This is mildly
 inefficient, but it ensures that the INI file remains in a well-defined
 state even if the INIServe session is aborted because of something
 like a communications failure.
@@ -653,6 +703,8 @@ like a communications failure.
 :p.The "current file" set by this command remains in force until
 the next F command, if any.
 
+:p.If the file name ends with ".TNI", INIServe assumes that the file is
+in TNI format. Otherwise, it assumes the standard OS/2 INI file format.
 
 .***********************************
 .*   THE K COMMAND
@@ -1146,6 +1198,9 @@ either by double-clicking on the desktop icon, or by entering the
 command "iniserve" in a command-line session.  If you want the server
 to be running all the time, then you should probably create a shadow
 or program object to go into the startup folder.
+
+:p.Optionally, you can run INIServe.cmd rather than INIServe.exe.
+This gives you a smaller screen window but does not affect anything else.
 
 :p.The server can be run detached, if desired. In theory it can also
 be run from inetd, but I've never tested that option.

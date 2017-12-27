@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*  INIServe server for remote access to INI/TNI files.                   *)
-(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*  Copyright (C) 20174   Peter Moylan                                     *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU General Public License as published by  *)
@@ -28,7 +28,7 @@ IMPLEMENTATION MODULE INICommands;
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        20 July 2015                    *)
+        (*  Last edited:        22 July 2017                    *)
         (*  Status:             Working                         *)
         (*                                                      *)
         (********************************************************)
@@ -37,23 +37,23 @@ IMPLEMENTATION MODULE INICommands;
 (*                             COMMAND SUMMARY                                  *)
 (********************************************************************************)
 (*                                                                              *)
-(*      A                  set application          WORKING                     *)
-(*      C                  change directory         WORKING                     *)
-(*      D                  delete current entry     WORKING                     *)
-(*      E<string>          post event semaphore     DONE, UNTESTED              *)
-(*      F                  select file to edit      WORKING                     *)
-(*      K                  set key                  WORKING                     *)
-(*      L<string>          list directory           WORKING                     *)
-(*      M<string>          make new directory       WORKING                     *)
-(*      O<val>,<val>       offset and size (for V & W commands) WORKING, I THINK *)
-(*      P<string>          password                 WORKING                     *)
-(*      Q                  quit                     WORKING                     *)
-(*      R                  relocate                 DONE, UNTESTED              *)
-(*      S                  return size of current item  WORKING                 *)
-(*      T                  truncated size           DONE BUT UNTESTED           *)
-(*      V                  return value of current item  WORKING                *)
-(*      W<hexdata>         store new value for current item  WORKING            *)
-(*      X<string>          delete file or directory DONE, UNTESTED              *)
+(*      A                  set application                      WORKING         *)
+(*      C                  change directory                     WORKING         *)
+(*      D                  delete current entry                 WORKING         *)
+(*      E<string>          post event semaphore                 WORKING         *)
+(*      F                  select file to edit                  WORKING         *)
+(*      K                  set key                              WORKING         *)
+(*      L<string>          list directory                       WORKING         *)
+(*      M<string>          make new directory                   WORKING         *)
+(*      O<val>,<val>       offset and size (for V & W commands) WORKING, I THINK*)
+(*      P<string>          password                             WORKING         *)
+(*      Q                  quit                                 WORKING         *)
+(*      R                  relocate                             DONE, UNTESTED  *)
+(*      S                  return size of current item          WORKING         *)
+(*      T                  truncated size                       DONE, UNTESTED  *)
+(*      V                  return value of current item         WORKING         *)
+(*      W<hexdata>         store new value for current item     WORKING         *)
+(*      X<string>          delete file or directory             DONE, UNTESTED  *)
 (*                                                                              *)
 (********************************************************************************)
 
@@ -589,9 +589,19 @@ PROCEDURE ChooseFile (session: Session;  VAR (*IN*) filename: ARRAY OF CHAR);
 
     (* The F command: specify the INI file to work on. *)
 
+    VAR hini: HINI;
+        ch: ARRAY [0..0] OF CHAR;
+
     BEGIN
         CopyString (filename, session^.filename);
-        Reply (session, "+");
+        hini := OpenCurrentINIFile (session);
+        IF INIData.INIValid(hini) THEN
+            ch[0] := '+';
+            INIData.CloseINIFile (hini);
+        ELSE
+            ch[0] := '-';
+        END (*IF*);
+        Reply (session, ch);
     END ChooseFile;
 
 (********************************************************************************)

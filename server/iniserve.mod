@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*  INIServe server for remote access to INI/TNI files.                   *)
-(*  Copyright (C) 2014   Peter Moylan                                     *)
+(*  Copyright (C) 2017   Peter Moylan                                     *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU General Public License as published by  *)
@@ -24,11 +24,11 @@ MODULE INIServe;
 
         (********************************************************)
         (*                                                      *)
-        (*                  INI file server                     *)
+        (*                INI/TNI file server                   *)
         (*                                                      *)
         (*  Programmer:         P. Moylan                       *)
         (*  Started:            24 May 1998                     *)
-        (*  Last edited:        21 July 2015                    *)
+        (*  Last edited:        19 July 2017                    *)
         (*  Status:             OK                              *)
         (*                                                      *)
         (********************************************************)
@@ -243,7 +243,7 @@ PROCEDURE RunTheServer;
 
             IF ScreenEnabled THEN
                 WriteString ("INIServe v");  WriteString (ISV.version);
-                WriteString ("  Copyright (C) 1999-2015 Peter Moylan.");
+                WriteString ("  Copyright (C) 1999-2017 Peter Moylan.");
                 WriteLn;  WriteHostID (Swap4(gethostid()));  WriteLn;
                 EVAL (SetBreakHandler (ControlCHandler));
             END (*IF*);

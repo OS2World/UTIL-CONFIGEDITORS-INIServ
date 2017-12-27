@@ -37,6 +37,7 @@ mkdir doc
 'copy ..\doc\iniserve.inf'
 'copy ..\iniserve.prj'
 'copy ..\iniserve.exe'
+'copy ..\iniserve.cmd'
 'copy ..\iniserve.map'
 'copy ..\iniserve.sym'
 'copy ..\iniserve.xqs'
