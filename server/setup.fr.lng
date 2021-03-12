@@ -1,0 +1,32 @@
+
+#======================================================================
+# Messages pour le dialogue principal, version francaise.
+#======================================================================
+
+Setup.Title "Configuration d'INIServe"
+Setup.remote "Distant"
+Setup.language "Langue"
+Setup.Password "Mot de passe"
+Setup.ServerPort "Port de serveur"
+Setup.TimeOut "Delai d'expiration (secs)"
+Setup.Exit "Sortie"
+
+
+Remote.title "Serveur … distance"
+Remote.HostLabel "Serveur"
+Remote.PortLabel "Port INIServe"
+Remote.PassLabel "Mot de passe INIServe"
+Remote.DirLabel "Archive %a"
+
+Remote.local "Mode local"
+Remote.nosocket "Pas de jonction"
+Remote.lookingup "Recherche de nom"
+Remote.unknownhost "Serveur %a inconnu"
+Remote.trying "Tentative de connexion"
+Remote.commerr "Erreur de communication"
+Remote.failed "Connexion rat‚e"
+Remote.serverrejected "Refus par le serveur"
+Remote.invaliddir "Archive … distance non valable"
+Remote.badpassword "Mot de passe refus‚"
+Remote.connected "Connexion ‚tablie"
+

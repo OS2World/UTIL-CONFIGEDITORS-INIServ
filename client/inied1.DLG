@@ -1,0 +1,17 @@
+#include "OS2.H"
+
+DLGTEMPLATE 100 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "INI editor", 100, 355, 80, 106, 50, 
+           WS_SYNCPAINT | WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        AUTORADIOBUTTON "Local", 405, 7, 34, 44, 9, WS_GROUP
+        AUTORADIOBUTTON "Remote", 403, 7, 24, 44, 10
+        PUSHBUTTON      "GO", 408, 59, 22, 40, 24, WS_GROUP
+        PUSHBUTTON      "Setup", 406, 10, 10, 40, 10
+        PUSHBUTTON      "Exit", 407, 59, 10, 40, 10
+        CTEXT           "", 409, 2, 0, 103, 10, NOT WS_GROUP | DT_VCENTER
+        CONTROL         "", 404, 5, 22, 49, 24, WC_STATIC,
+                        WS_CLIPSIBLINGS | SS_BKGNDRECT
+    END
+END

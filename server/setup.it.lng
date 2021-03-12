@@ -1,0 +1,33 @@
+# Etichette italiane per il dialogo di installazione di INIServe
+
+#======================================================================
+# Dialogo principale.
+#======================================================================
+
+Setup.Title "Configurazione INIServe"
+Setup.remote "Remoto"
+Setup.language "Linguaggio"
+Setup.Password "Parola d'ordine"
+Setup.ServerPort "Porta del server"
+Setup.TimeOut "Timeout (secondi)"
+Setup.Exit "Uscita"
+
+
+Remote.title "Server remoto"
+Remote.HostLabel "Nome host"
+Remote.PortLabel "Porta INIServe"
+Remote.PassLabel "Password INIServe"
+Remote.DirLabel "Directory %a"
+
+Remote.local "Modalit… locale"
+Remote.nosocket "Impossibile creare il socket"
+Remote.lookingup "Cercando il nome"
+Remote.unknownhost "Host %a sconosciuto"
+Remote.trying "Tentativo di connessione"
+Remote.commerr "Errore di communicazione"
+Remote.failed "Connessione fallita"
+Remote.serverrejected "Il server ci ha respinto"
+Remote.invaliddir "Directory remota non valida"
+Remote.badpassword "Password rifiutata"
+Remote.connected "Collegato"
+

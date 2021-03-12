@@ -1,0 +1,33 @@
+# English labels for the INIServe Setup notebook
+
+#======================================================================
+# Main dialogue.
+#======================================================================
+
+Setup.Title "INIServe Setup"
+Setup.remote "Remote"
+Setup.language "Language"
+Setup.Password "Password"
+Setup.ServerPort "Server Port"
+Setup.TimeOut "Timeout (secs)"
+Setup.Exit "Exit"
+
+Remote.title "Remote server details"
+Remote.HostLabel "Hostname"
+Remote.PortLabel "INIServe port"
+Remote.PassLabel "INIServe password"
+Remote.DirLabel "INIServe directory"
+
+Remote.wrong "Wrong"
+Remote.local "Local mode"
+Remote.nosocket "Can't create socket"
+Remote.lookingup "Looking up name"
+Remote.unknownhost "Unknown host %a"
+Remote.trying "Attempting to connect"
+Remote.commerr "Communications error"
+Remote.failed "Failed to connect"
+Remote.serverrejected "Server rejected us"
+Remote.invaliddir "Invalid remote directory"
+Remote.badpassword "Password rejected"
+Remote.connected "Connected"
+

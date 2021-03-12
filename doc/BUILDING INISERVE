@@ -11,12 +11,11 @@ that says
 is the command that compiles and links all the modules.
 
 The required files SO32DLL.LIB and TCP32DLL.LIB can be found in
-the OS2TK45 directory of most eCS installations.  If you don't have that
-directory, search for the OS/2 development toolkit on the usual OS/2
-software sites.
+the OS2TK45 directory of most eCS or ArcaOS installations.  If you
+don't have that directory, search for the OS/2 development toolkit
+on the usual OS/2 software sites.
 
 The IMPORTS program that is referred to in makezip.cmd is not needed
-to make this program, only to zip up the sources.  It is not available at
-the time of writing this document, but I'll make it available as freeware
-as soon as possible.
+to make this program, only to zip up the sources.  It is available from
+http://www.pmoylan.org if you want a copy.
 

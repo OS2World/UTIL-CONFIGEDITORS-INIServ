@@ -1,5 +1,27 @@
 LIST OF CHANGES
 
+Version 3.1    (25 Jun 2020)
+    You may now supply an -I or -T parameter to INIServe.exe,
+        as an explicit specification of whether to take
+        its parameters from an INI or TNI file.
+    Fixed: random crash when a session times out.
+    Fixed: password was being taken from INIServe.INI
+        even in TNI mode.
+    INIServe.FMT and Setup.FMT added to distribution.
+    New command to request a server restart.
+    Setup program added to the server package.
+    Manual updated.
+
+Version 3.0    (20 Apr 2020)
+    New: the R command can now move a file or
+        directory between volumes.
+
+Version 2.9    (31 Aug 2019)
+   This file renamed from changes.doc to changes.txt.
+   Rebuilt to use INIDATA.DLL.
+   The inied1 application now allows editing both INI
+      and TNI files, either locally or remotely.
+
 Version 2.8    (22 Jul 2017)
    Response to 'F' command is '-' if file cannot be
       opened as an INI or TNI file.

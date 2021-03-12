@@ -9,6 +9,7 @@
 /* icon in the DrDialog desktop folder) independently of this script.   */
 
 'xc =p iniserve.prj'
+'xc =p setup.prj'
 '\apps\lxlite\lxlite *.exe'
 ver = version()
 say "Version "ver
@@ -26,16 +27,28 @@ say "iniserve.sym and iniserve.xqs should now exist"
 cd doc
 'ipfc -i iniserve.ipf'
 cd ..
-rem call seticon
+call seticon
 mkdir temp
 cd temp
 mkdir source
+'mkdir source\doc'
 mkdir doc
-'copy ..\doc\iniserve.ipf doc'
-'copy ..\doc\changes.doc doc'
+'copy ..\doc\iniserve.inf doc'
+'copy ..\doc\iniserve.ipf source\doc'
+'copy ..\doc\changes.txt doc'
 'Imports ..\INIServe | zip -j -u source\source.zip -@'
-'copy ..\doc\iniserve.inf'
+'Imports ..\Setup | zip -j -u source\source.zip -@'
+'cd source'
+'zip source.zip doc\iniserve.ipf'
+'del doc\iniserve.ipf'
+rmdir doc
+'cd ..'
+'copy ..\setup.prj'
+'copy ..\setup.FMT'
+'copy ..\setup.exe'
+'copy ..\setup.*.lng'
 'copy ..\iniserve.prj'
+'copy ..\INIServe.FMT'
 'copy ..\iniserve.exe'
 'copy ..\iniserve.cmd'
 'copy ..\iniserve.map'
@@ -51,9 +64,10 @@ rmdir source
 /* Zip up the 'client' package */
 
 mkdir source
+'copy ..\res\inied1.def source'
+'copy ..\res\inied1.dlg source'
 'copy ..\res\inied1.res source'
-'copy ..\inied1.exe'
-'copy ..\inied1.ico'
+'copy ..\res\inied1.exe'
 'zip -r ..\client.zip .'
 'del source\* /n'
 rmdir source
@@ -64,8 +78,8 @@ rmdir source
 cd ..
 rmdir temp
 'copy D:\Dev1\general\doc\gpl.txt'
-'zip iniser'ver'.zip README file_id.diz server.zip client.zip gpl.txt makezip.cmd'
-'zip iniser'ver'.zip doc\BUILDING*'
+'zip iniserve_'ver'.zip README file_id.diz server.zip client.zip gpl.txt makezip.cmd'
+'zip iniserve_'ver'.zip doc\BUILDING* -x *.bak'
 del server.zip
 del client.zip
 del gpl.txt

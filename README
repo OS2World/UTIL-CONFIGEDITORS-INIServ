@@ -7,11 +7,8 @@ Versions 2.2 and later of the INIServe server program can handle
 both INI and TNI files.  (A TNI file is a human-readable
 version of an INI file.  If you want to know more, download
 the GenINI package from the same place that you got INIServe.)
-The inied1 client that is included here unfortunately
-cannot handle local TNI files - that turned out to be too
-tricky to do in Rexx - but in remote mode it can deal with
-either INI or TNI files, because in that case it is the
-server that does most of the work.
+The inied1 client that is included here can also handle
+both cases.
 
 In principle, the server part should go on the machine with
 the INI files to be edited, and the client part should go
@@ -22,7 +19,9 @@ if you prefer.
 
 To install, unzip the appropriate zip file (client.zip or
 server.zip) into a directory of your choice. The two programs
-should be immediately ready to run.
+should be immediately ready to run. The server directory will
+also contain a program Setup.exe, which can be used to
+configure the server.
 
 The documentation is in the server package.  The client is
 supposed to be sufficiently user-friendly that it doesn't need
